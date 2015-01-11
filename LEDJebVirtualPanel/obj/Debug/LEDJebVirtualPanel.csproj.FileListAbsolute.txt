@@ -1,0 +1,8 @@
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\LEDJebVirtualPanel.Properties.Resources.resources
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\LEDJebVirtualPanel.csproj.GenerateResource.Cache
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\LEDJebVirtualPanel.frmVirtualLEDs.resources
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\bin\Debug\LEDJebVirtualPanel.exe
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\bin\Debug\LEDJebVirtualPanel.pdb
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\LEDJebVirtualPanel.exe
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\LEDJebVirtualPanel.pdb

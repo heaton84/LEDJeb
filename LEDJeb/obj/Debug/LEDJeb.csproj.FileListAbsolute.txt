@@ -1,0 +1,24 @@
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\LEDJeb.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\LEDJeb.pdb
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\Assembly-CSharp.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\UnityEngine.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\TDx.TDxInput.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\Mono.Cecil.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\Assembly-CSharp-firstpass.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\bin\Debug\Mono.Security.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\obj\Debug\LEDJeb.dll
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\obj\Debug\LEDJeb.pdb
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\obj\Debug\LEDJeb.frmVirtualLEDs.resources
+C:\Users\Josh\Documents\Visual Studio 2008\Projects\LEDJeb\LEDJeb\obj\Debug\LEDJeb.csproj.GenerateResource.Cache
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\LEDJeb.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\LEDJeb.pdb
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\Assembly-CSharp.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\UnityEngine.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\Mono.Security.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\Mono.Cecil.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\TDx.TDxInput.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\bin\Debug\Assembly-CSharp-firstpass.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\obj\Debug\LEDJeb.dll
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJeb\obj\Debug\LEDJeb.pdb

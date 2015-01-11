@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LEDJeb", "LEDJeb\LEDJeb.csproj", "{F3F8876A-FFD7-4728-BE86-C35F241BBF9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LEDJebVirtualPanel", "LEDJebVirtualPanel\LEDJebVirtualPanel.csproj", "{7E0EC47B-80D1-4E6F-B292-B782B7BA7839}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3F8876A-FFD7-4728-BE86-C35F241BBF9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3F8876A-FFD7-4728-BE86-C35F241BBF9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3F8876A-FFD7-4728-BE86-C35F241BBF9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3F8876A-FFD7-4728-BE86-C35F241BBF9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E0EC47B-80D1-4E6F-B292-B782B7BA7839}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E0EC47B-80D1-4E6F-B292-B782B7BA7839}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E0EC47B-80D1-4E6F-B292-B782B7BA7839}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E0EC47B-80D1-4E6F-B292-B782B7BA7839}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
