@@ -2,11 +2,11 @@
 *               INSTALLING PLUGIN               *
 *************************************************
 
-Copy LEDJeb\bin\Debug\LEDJeb.dll to your KSP Plugins folder.
+1. Copy LEDJeb\bin\Debug\LEDJeb.dll to your KSP Plugins folder.
 
 For Steam users, this is at C:\Program Files (x86)\Steam\SteamApps\common\Kerbal Space Program\Plugins
 
-
+2. Register "7 Segment.ttf" by right-clicking on it and selecting "Install"
 
 
 *************************************************
