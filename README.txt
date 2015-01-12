@@ -6,10 +6,6 @@
 
    For Steam users, this is at C:\Program Files (x86)\Steam\SteamApps\common\Kerbal Space Program\Plugins
 
-2. Register "7 Segment.ttf" by right-clicking on it and selecting "Install"
-
-   Credit goes to Harvey Twyman for the LED font: http://www.twyman.org.uk/Fonts/ 
-
 
 *************************************************
 *                 USING THE MOD                 *
@@ -35,3 +31,18 @@ Currently, the following readouts are not available:
 
 1. Burn time remaining
 2. Time to intercept
+
+
+
+*************************************************
+*               VERSION HISTORY                 *
+*************************************************
+
+Date        Ver #  Author       Changes
+----------  -----  -----------  -----------------------------
+01/11/2015  0.2    heaton84     Added decimal points on client app
+                                Removed dependency on 7-segment font
+                                Added config hooks
+                                Fixed KSP crashing on close
+
+01/10/2015  0.1    heaton84     Alpha Release

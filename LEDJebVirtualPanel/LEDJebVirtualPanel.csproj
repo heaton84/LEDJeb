@@ -55,11 +55,11 @@
     <Compile Include="frmVirtualLEDs.Designer.cs">
       <DependentUpon>frmVirtualLEDs.cs</DependentUpon>
     </Compile>
-    <Compile Include="MAX7219Label.cs">
-      <SubType>Component</SubType>
+    <Compile Include="MAX7219Display.cs">
+      <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="MAX7219Label.Designer.cs">
-      <DependentUpon>MAX7219Label.cs</DependentUpon>
+    <Compile Include="MAX7219Display.Designer.cs">
+      <DependentUpon>MAX7219Display.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -84,6 +84,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="SevenSegment.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SevenSegment.Designer.cs">
+      <DependentUpon>SevenSegment.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

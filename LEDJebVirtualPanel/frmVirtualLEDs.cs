@@ -42,7 +42,7 @@ namespace LEDJebVirtualPanel
 
             // Automagically wire up controller
             // "root" display is display1. Data is clocked in here, then shifted out towards display 16.
-            MAX7219Label lbl = display1;
+            MAX7219Display lbl = display1;
             int display_count = 1;
 
             while (lbl.NextInChain != null)
@@ -294,11 +294,6 @@ namespace LEDJebVirtualPanel
                 else
                     MacroWriteAllDisplays((byte)column, 8);
             }
-        }
-
-        private void lblApoapsis_Paint(object sender, PaintEventArgs e)
-        {
-            
         }
     }
 }

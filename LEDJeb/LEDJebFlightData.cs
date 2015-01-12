@@ -18,38 +18,39 @@ namespace LEDJeb
         public bool HasOrbitalData;
 
         // Orbital Data
-        public double orbitalApoapsis;
-        public double orbitalApoapsisETA;
+        public double orbitalApoapsis = double.NaN;
+        public double orbitalApoapsisETA = double.NaN;
 
-        public double orbitalPeriapsis;
-        public double orbitalPeriapsisETA;
+        public double orbitalPeriapsis = double.NaN;
+        public double orbitalPeriapsisETA = double.NaN;
 
-        public double orbitalVelocity;
-        public double orbitalPeriod;
-        public double orbitalInclanation;
+        public double orbitalVelocity = double.NaN;
+        public double orbitalPeriod = double.NaN;
+        public double orbitalInclanation = double.NaN;
         
 
         public bool HasFlightData;
 
         // Flight Data
         public int flightStage;
-        public double flightMissionTime;
-        public double flightAltitude;
+        public double flightMissionTime = double.NaN;
+        public double flightAltitude = double.NaN;
 
         public bool HasManeuverNode;
 
         // Maneuver Node Data
 
-        public double maneuverNodeETA;
-        public double maneuverDeltaVRemaining;
-        public double maneuverBurnTimeRemaining;
+        public double maneuverNodeETA = double.NaN;
+        public double maneuverDeltaVRemaining = double.NaN;
+        public double maneuverBurnTimeRemaining = double.NaN;
 
         public bool HasTargetData;
 
         // Target Data
-        public double targetDistance;
-        public double targetAscendingNode;
-        public double targetRelativeVelocity;
+        public double targetDistance = double.NaN;
+        public double targetAscendingNode = double.NaN;
+        public double targetRelativeVelocity = double.NaN;
+        public double targetETA = double.NaN;
 
         public static LEDJebFlightData fetch()
         {
@@ -96,7 +97,7 @@ namespace LEDJeb
                      *    
                      */
 
-                    flightData.maneuverBurnTimeRemaining = 0;
+                    flightData.maneuverBurnTimeRemaining = double.NaN;
 
 
                 } // Maneuver Node
@@ -121,6 +122,44 @@ namespace LEDJeb
             }
 
             return flightData;
+        }
+
+        public double FromEnum(LEDPanel.DisplayVar p_DisplayVar)
+        {
+            if (p_DisplayVar == LEDPanel.DisplayVar.Altitude)
+                return this.flightAltitude;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.Apoapsis)
+                return this.orbitalApoapsis;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.ApoapsisETA)
+                return this.orbitalApoapsisETA;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.FlightMissionTime)
+                return this.flightMissionTime;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.FlightVelocity)
+                return this.orbitalVelocity;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.ManeuverBurnTime)
+                return this.maneuverBurnTimeRemaining;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.ManeuverDeltaV)
+                return this.maneuverDeltaVRemaining;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.ManeuverETA)
+                return this.maneuverNodeETA;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.OrbitalInclination)
+                return this.orbitalInclanation;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.OrbitalPeriod)
+                return this.orbitalPeriod;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.Periapsis)
+                return this.orbitalPeriapsis;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.PeriapsisETA)
+                return this.orbitalPeriapsisETA;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.TargetDistance)
+                return this.targetDistance;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.TargetETA)
+                return this.targetETA;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.TargetRelativeInclination)
+                return this.targetAscendingNode;
+            else if (p_DisplayVar == LEDPanel.DisplayVar.TargetRelativeV)
+                return this.targetRelativeVelocity;
+
+            return double.NaN;
         }
     }
 }

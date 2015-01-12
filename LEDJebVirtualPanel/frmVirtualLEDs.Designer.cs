@@ -51,22 +51,22 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.tmrCheckData = new System.Windows.Forms.Timer(this.components);
-            this.display2 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display3 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display4 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display5 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display6 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display7 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display8 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display9 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display10 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display11 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display12 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display13 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display14 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display15 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display16 = new LEDJebVirtualPanel.MAX7219Label();
-            this.display1 = new LEDJebVirtualPanel.MAX7219Label();
+            this.display16 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display15 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display14 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display13 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display12 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display11 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display10 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display9 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display8 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display7 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display6 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display5 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display4 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display3 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display2 = new LEDJebVirtualPanel.MAX7219Display();
+            this.display1 = new LEDJebVirtualPanel.MAX7219Display();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -108,11 +108,11 @@
             this.label30.AutoSize = true;
             this.label30.Font = new System.Drawing.Font("OCR-A II", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label30.ForeColor = System.Drawing.Color.White;
-            this.label30.Location = new System.Drawing.Point(790, 379);
+            this.label30.Location = new System.Drawing.Point(809, 379);
             this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(199, 15);
+            this.label30.Size = new System.Drawing.Size(167, 15);
             this.label30.TabIndex = 70;
-            this.label30.Text = "RELATIVE INCLINATION X10";
+            this.label30.Text = "RELATIVE INCLINATION";
             // 
             // label29
             // 
@@ -130,11 +130,11 @@
             this.label28.AutoSize = true;
             this.label28.Font = new System.Drawing.Font("OCR-A II", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label28.ForeColor = System.Drawing.Color.White;
-            this.label28.Location = new System.Drawing.Point(548, 262);
+            this.label28.Location = new System.Drawing.Point(565, 262);
             this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(175, 15);
+            this.label28.Size = new System.Drawing.Size(143, 15);
             this.label28.TabIndex = 68;
-            this.label28.Text = "RELATIVE VELOCITY X10";
+            this.label28.Text = "RELATIVE VELOCITY";
             // 
             // label26
             // 
@@ -185,18 +185,18 @@
             this.label27.AutoSize = true;
             this.label27.Font = new System.Drawing.Font("OCR-A II", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label27.ForeColor = System.Drawing.Color.White;
-            this.label27.Location = new System.Drawing.Point(59, 379);
+            this.label27.Location = new System.Drawing.Point(74, 379);
             this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(127, 15);
+            this.label27.Size = new System.Drawing.Size(95, 15);
             this.label27.TabIndex = 63;
-            this.label27.Text = "INCLINATION X10";
+            this.label27.Text = "INCLINATION";
             // 
             // label24
             // 
             this.label24.AutoSize = true;
             this.label24.Font = new System.Drawing.Font("OCR-A II", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label24.ForeColor = System.Drawing.Color.White;
-            this.label24.Location = new System.Drawing.Point(322, 262);
+            this.label24.Location = new System.Drawing.Point(316, 262);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(119, 15);
             this.label24.TabIndex = 62;
@@ -304,229 +304,309 @@
             this.tmrCheckData.Interval = 50;
             this.tmrCheckData.Tick += new System.EventHandler(this.tmrCheckData_Tick);
             // 
-            // display2
-            // 
-            this.display2.AutoSize = true;
-            this.display2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display2.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display2.ForeColor = System.Drawing.Color.Lime;
-            this.display2.Location = new System.Drawing.Point(257, 65);
-            this.display2.Name = "display2";
-            this.display2.NextInChain = this.display3;
-            this.display2.Size = new System.Drawing.Size(225, 55);
-            this.display2.TabIndex = 81;
-            this.display2.Text = "88888888";
-            // 
-            // display3
-            // 
-            this.display3.AutoSize = true;
-            this.display3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.display3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display3.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display3.ForeColor = System.Drawing.Color.Red;
-            this.display3.Location = new System.Drawing.Point(3, 170);
-            this.display3.Name = "display3";
-            this.display3.NextInChain = this.display4;
-            this.display3.Size = new System.Drawing.Size(225, 55);
-            this.display3.TabIndex = 82;
-            this.display3.Text = "88888888";
-            // 
-            // display4
-            // 
-            this.display4.AutoSize = true;
-            this.display4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display4.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display4.ForeColor = System.Drawing.Color.Lime;
-            this.display4.Location = new System.Drawing.Point(257, 170);
-            this.display4.Name = "display4";
-            this.display4.NextInChain = this.display5;
-            this.display4.Size = new System.Drawing.Size(225, 55);
-            this.display4.TabIndex = 83;
-            this.display4.Text = "88888888";
-            // 
-            // display5
-            // 
-            this.display5.AutoSize = true;
-            this.display5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.display5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display5.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display5.ForeColor = System.Drawing.Color.Red;
-            this.display5.Location = new System.Drawing.Point(3, 288);
-            this.display5.Name = "display5";
-            this.display5.NextInChain = this.display6;
-            this.display5.Size = new System.Drawing.Size(225, 55);
-            this.display5.TabIndex = 84;
-            this.display5.Text = "88888888";
-            // 
-            // display6
-            // 
-            this.display6.AutoSize = true;
-            this.display6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display6.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display6.ForeColor = System.Drawing.Color.Lime;
-            this.display6.Location = new System.Drawing.Point(257, 288);
-            this.display6.Name = "display6";
-            this.display6.NextInChain = this.display7;
-            this.display6.Size = new System.Drawing.Size(225, 55);
-            this.display6.TabIndex = 85;
-            this.display6.Text = "88888888";
-            // 
-            // display7
-            // 
-            this.display7.AutoSize = true;
-            this.display7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.display7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display7.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display7.ForeColor = System.Drawing.Color.Red;
-            this.display7.Location = new System.Drawing.Point(3, 405);
-            this.display7.Name = "display7";
-            this.display7.NextInChain = this.display8;
-            this.display7.Size = new System.Drawing.Size(225, 55);
-            this.display7.TabIndex = 86;
-            this.display7.Text = "88888888";
-            // 
-            // display8
-            // 
-            this.display8.AutoSize = true;
-            this.display8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display8.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display8.ForeColor = System.Drawing.Color.Yellow;
-            this.display8.Location = new System.Drawing.Point(521, 65);
-            this.display8.Name = "display8";
-            this.display8.NextInChain = this.display9;
-            this.display8.Size = new System.Drawing.Size(225, 55);
-            this.display8.TabIndex = 87;
-            this.display8.Text = "88888888";
-            // 
-            // display9
-            // 
-            this.display9.AutoSize = true;
-            this.display9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display9.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display9.ForeColor = System.Drawing.Color.Lime;
-            this.display9.Location = new System.Drawing.Point(775, 65);
-            this.display9.Name = "display9";
-            this.display9.NextInChain = this.display10;
-            this.display9.Size = new System.Drawing.Size(225, 55);
-            this.display9.TabIndex = 88;
-            this.display9.Text = "88888888";
-            // 
-            // display10
-            // 
-            this.display10.AutoSize = true;
-            this.display10.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display10.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display10.ForeColor = System.Drawing.Color.Lime;
-            this.display10.Location = new System.Drawing.Point(775, 170);
-            this.display10.Name = "display10";
-            this.display10.NextInChain = this.display11;
-            this.display10.Size = new System.Drawing.Size(225, 55);
-            this.display10.TabIndex = 89;
-            this.display10.Text = "88888888";
-            // 
-            // display11
-            // 
-            this.display11.AutoSize = true;
-            this.display11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display11.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display11.ForeColor = System.Drawing.Color.Yellow;
-            this.display11.Location = new System.Drawing.Point(521, 288);
-            this.display11.Name = "display11";
-            this.display11.NextInChain = this.display12;
-            this.display11.Size = new System.Drawing.Size(225, 55);
-            this.display11.TabIndex = 90;
-            this.display11.Text = "88888888";
-            // 
-            // display12
-            // 
-            this.display12.AutoSize = true;
-            this.display12.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display12.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display12.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display12.ForeColor = System.Drawing.Color.Lime;
-            this.display12.Location = new System.Drawing.Point(775, 288);
-            this.display12.Name = "display12";
-            this.display12.NextInChain = this.display13;
-            this.display12.Size = new System.Drawing.Size(225, 55);
-            this.display12.TabIndex = 91;
-            this.display12.Text = "88888888";
-            // 
-            // display13
-            // 
-            this.display13.AutoSize = true;
-            this.display13.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.display13.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display13.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display13.ForeColor = System.Drawing.Color.Red;
-            this.display13.Location = new System.Drawing.Point(521, 407);
-            this.display13.Name = "display13";
-            this.display13.NextInChain = this.display14;
-            this.display13.Size = new System.Drawing.Size(225, 55);
-            this.display13.TabIndex = 92;
-            this.display13.Text = "88888888";
-            // 
-            // display14
-            // 
-            this.display14.AutoSize = true;
-            this.display14.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.display14.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display14.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display14.ForeColor = System.Drawing.Color.Red;
-            this.display14.Location = new System.Drawing.Point(775, 407);
-            this.display14.Name = "display14";
-            this.display14.NextInChain = this.display15;
-            this.display14.Size = new System.Drawing.Size(225, 55);
-            this.display14.TabIndex = 93;
-            this.display14.Text = "88888888";
-            // 
-            // display15
-            // 
-            this.display15.AutoSize = true;
-            this.display15.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
-            this.display15.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display15.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display15.ForeColor = System.Drawing.Color.Yellow;
-            this.display15.Location = new System.Drawing.Point(3, 607);
-            this.display15.Name = "display15";
-            this.display15.NextInChain = this.display16;
-            this.display15.Size = new System.Drawing.Size(225, 55);
-            this.display15.TabIndex = 94;
-            this.display15.Text = "88888888";
-            // 
             // display16
             // 
-            this.display16.AutoSize = true;
-            this.display16.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(31)))), ((int)(((byte)(0)))));
+            this.display16.ArrayCount = 8;
             this.display16.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display16.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display16.ForeColor = System.Drawing.Color.Lime;
+            this.display16.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display16.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display16.ColorLight = System.Drawing.Color.Lime;
+            this.display16.DecimalShow = true;
+            this.display16.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display16.ElementWidth = 8;
+            this.display16.ItalicFactor = -0.1F;
             this.display16.Location = new System.Drawing.Point(257, 607);
             this.display16.Name = "display16";
             this.display16.NextInChain = null;
-            this.display16.Size = new System.Drawing.Size(225, 55);
-            this.display16.TabIndex = 95;
-            this.display16.Text = "88888888";
+            this.display16.Size = new System.Drawing.Size(228, 49);
+            this.display16.TabIndex = 111;
+            this.display16.TabStop = false;
+            this.display16.Value = null;
+            // 
+            // display15
+            // 
+            this.display15.ArrayCount = 8;
+            this.display15.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display15.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display15.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display15.ColorLight = System.Drawing.Color.Yellow;
+            this.display15.DecimalShow = true;
+            this.display15.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display15.ElementWidth = 8;
+            this.display15.ItalicFactor = -0.1F;
+            this.display15.Location = new System.Drawing.Point(3, 607);
+            this.display15.Name = "display15";
+            this.display15.NextInChain = this.display16;
+            this.display15.Size = new System.Drawing.Size(228, 49);
+            this.display15.TabIndex = 110;
+            this.display15.TabStop = false;
+            this.display15.Value = null;
+            // 
+            // display14
+            // 
+            this.display14.ArrayCount = 8;
+            this.display14.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display14.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display14.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display14.ColorLight = System.Drawing.Color.Red;
+            this.display14.DecimalShow = true;
+            this.display14.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display14.ElementWidth = 8;
+            this.display14.ItalicFactor = -0.1F;
+            this.display14.Location = new System.Drawing.Point(775, 407);
+            this.display14.Name = "display14";
+            this.display14.NextInChain = this.display15;
+            this.display14.Size = new System.Drawing.Size(228, 49);
+            this.display14.TabIndex = 109;
+            this.display14.TabStop = false;
+            this.display14.Value = null;
+            // 
+            // display13
+            // 
+            this.display13.ArrayCount = 8;
+            this.display13.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display13.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display13.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display13.ColorLight = System.Drawing.Color.Red;
+            this.display13.DecimalShow = true;
+            this.display13.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display13.ElementWidth = 8;
+            this.display13.ItalicFactor = -0.1F;
+            this.display13.Location = new System.Drawing.Point(521, 407);
+            this.display13.Name = "display13";
+            this.display13.NextInChain = this.display14;
+            this.display13.Size = new System.Drawing.Size(228, 49);
+            this.display13.TabIndex = 108;
+            this.display13.TabStop = false;
+            this.display13.Value = null;
+            // 
+            // display12
+            // 
+            this.display12.ArrayCount = 8;
+            this.display12.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display12.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display12.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display12.ColorLight = System.Drawing.Color.Lime;
+            this.display12.DecimalShow = true;
+            this.display12.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display12.ElementWidth = 8;
+            this.display12.ItalicFactor = -0.1F;
+            this.display12.Location = new System.Drawing.Point(775, 288);
+            this.display12.Name = "display12";
+            this.display12.NextInChain = this.display13;
+            this.display12.Size = new System.Drawing.Size(228, 49);
+            this.display12.TabIndex = 107;
+            this.display12.TabStop = false;
+            this.display12.Value = null;
+            // 
+            // display11
+            // 
+            this.display11.ArrayCount = 8;
+            this.display11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display11.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display11.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display11.ColorLight = System.Drawing.Color.Yellow;
+            this.display11.DecimalShow = true;
+            this.display11.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display11.ElementWidth = 8;
+            this.display11.ItalicFactor = -0.1F;
+            this.display11.Location = new System.Drawing.Point(521, 288);
+            this.display11.Name = "display11";
+            this.display11.NextInChain = this.display12;
+            this.display11.Size = new System.Drawing.Size(228, 49);
+            this.display11.TabIndex = 106;
+            this.display11.TabStop = false;
+            this.display11.Value = null;
+            // 
+            // display10
+            // 
+            this.display10.ArrayCount = 8;
+            this.display10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display10.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display10.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display10.ColorLight = System.Drawing.Color.Lime;
+            this.display10.DecimalShow = true;
+            this.display10.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display10.ElementWidth = 8;
+            this.display10.ItalicFactor = -0.1F;
+            this.display10.Location = new System.Drawing.Point(775, 170);
+            this.display10.Name = "display10";
+            this.display10.NextInChain = this.display11;
+            this.display10.Size = new System.Drawing.Size(228, 49);
+            this.display10.TabIndex = 105;
+            this.display10.TabStop = false;
+            this.display10.Value = null;
+            // 
+            // display9
+            // 
+            this.display9.ArrayCount = 8;
+            this.display9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display9.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display9.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display9.ColorLight = System.Drawing.Color.Lime;
+            this.display9.DecimalShow = true;
+            this.display9.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display9.ElementWidth = 8;
+            this.display9.ItalicFactor = -0.1F;
+            this.display9.Location = new System.Drawing.Point(775, 65);
+            this.display9.Name = "display9";
+            this.display9.NextInChain = this.display10;
+            this.display9.Size = new System.Drawing.Size(228, 49);
+            this.display9.TabIndex = 104;
+            this.display9.TabStop = false;
+            this.display9.Value = null;
+            // 
+            // display8
+            // 
+            this.display8.ArrayCount = 8;
+            this.display8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display8.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display8.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display8.ColorLight = System.Drawing.Color.Yellow;
+            this.display8.DecimalShow = true;
+            this.display8.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display8.ElementWidth = 8;
+            this.display8.ItalicFactor = -0.1F;
+            this.display8.Location = new System.Drawing.Point(521, 65);
+            this.display8.Name = "display8";
+            this.display8.NextInChain = this.display9;
+            this.display8.Size = new System.Drawing.Size(228, 49);
+            this.display8.TabIndex = 103;
+            this.display8.TabStop = false;
+            this.display8.Value = null;
+            // 
+            // display7
+            // 
+            this.display7.ArrayCount = 8;
+            this.display7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display7.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display7.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display7.ColorLight = System.Drawing.Color.Red;
+            this.display7.DecimalShow = true;
+            this.display7.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display7.ElementWidth = 8;
+            this.display7.ItalicFactor = -0.1F;
+            this.display7.Location = new System.Drawing.Point(3, 407);
+            this.display7.Name = "display7";
+            this.display7.NextInChain = this.display8;
+            this.display7.Size = new System.Drawing.Size(228, 49);
+            this.display7.TabIndex = 102;
+            this.display7.TabStop = false;
+            this.display7.Value = null;
+            // 
+            // display6
+            // 
+            this.display6.ArrayCount = 8;
+            this.display6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display6.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display6.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display6.ColorLight = System.Drawing.Color.Lime;
+            this.display6.DecimalShow = true;
+            this.display6.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display6.ElementWidth = 8;
+            this.display6.ItalicFactor = -0.1F;
+            this.display6.Location = new System.Drawing.Point(257, 288);
+            this.display6.Name = "display6";
+            this.display6.NextInChain = this.display7;
+            this.display6.Size = new System.Drawing.Size(228, 49);
+            this.display6.TabIndex = 101;
+            this.display6.TabStop = false;
+            this.display6.Value = null;
+            // 
+            // display5
+            // 
+            this.display5.ArrayCount = 8;
+            this.display5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display5.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display5.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display5.ColorLight = System.Drawing.Color.Red;
+            this.display5.DecimalShow = true;
+            this.display5.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display5.ElementWidth = 8;
+            this.display5.ItalicFactor = -0.1F;
+            this.display5.Location = new System.Drawing.Point(3, 288);
+            this.display5.Name = "display5";
+            this.display5.NextInChain = this.display6;
+            this.display5.Size = new System.Drawing.Size(228, 49);
+            this.display5.TabIndex = 100;
+            this.display5.TabStop = false;
+            this.display5.Value = null;
+            // 
+            // display4
+            // 
+            this.display4.ArrayCount = 8;
+            this.display4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display4.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display4.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display4.ColorLight = System.Drawing.Color.Lime;
+            this.display4.DecimalShow = true;
+            this.display4.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display4.ElementWidth = 8;
+            this.display4.ItalicFactor = -0.1F;
+            this.display4.Location = new System.Drawing.Point(257, 170);
+            this.display4.Name = "display4";
+            this.display4.NextInChain = this.display5;
+            this.display4.Size = new System.Drawing.Size(228, 49);
+            this.display4.TabIndex = 99;
+            this.display4.TabStop = false;
+            this.display4.Value = null;
+            // 
+            // display3
+            // 
+            this.display3.ArrayCount = 8;
+            this.display3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display3.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display3.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display3.ColorLight = System.Drawing.Color.Red;
+            this.display3.DecimalShow = true;
+            this.display3.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display3.ElementWidth = 8;
+            this.display3.ItalicFactor = -0.1F;
+            this.display3.Location = new System.Drawing.Point(3, 170);
+            this.display3.Name = "display3";
+            this.display3.NextInChain = this.display4;
+            this.display3.Size = new System.Drawing.Size(228, 49);
+            this.display3.TabIndex = 98;
+            this.display3.TabStop = false;
+            this.display3.Value = null;
+            // 
+            // display2
+            // 
+            this.display2.ArrayCount = 8;
+            this.display2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.display2.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display2.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(32)))), ((int)(((byte)(0)))));
+            this.display2.ColorLight = System.Drawing.Color.Lime;
+            this.display2.DecimalShow = true;
+            this.display2.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display2.ElementWidth = 8;
+            this.display2.ItalicFactor = -0.1F;
+            this.display2.Location = new System.Drawing.Point(257, 65);
+            this.display2.Name = "display2";
+            this.display2.NextInChain = this.display3;
+            this.display2.Size = new System.Drawing.Size(228, 49);
+            this.display2.TabIndex = 97;
+            this.display2.TabStop = false;
+            this.display2.Value = null;
             // 
             // display1
             // 
-            this.display1.AutoSize = true;
-            this.display1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display1.ArrayCount = 8;
             this.display1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.display1.Font = new System.Drawing.Font("7 Segment", 36F);
-            this.display1.ForeColor = System.Drawing.Color.Red;
-            this.display1.Location = new System.Drawing.Point(3, 64);
+            this.display1.ColorBackground = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display1.ColorDark = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.display1.ColorLight = System.Drawing.Color.Red;
+            this.display1.DecimalShow = true;
+            this.display1.ElementPadding = new System.Windows.Forms.Padding(4);
+            this.display1.ElementWidth = 8;
+            this.display1.ItalicFactor = -0.1F;
+            this.display1.Location = new System.Drawing.Point(3, 65);
             this.display1.Name = "display1";
             this.display1.NextInChain = this.display2;
-            this.display1.Size = new System.Drawing.Size(225, 55);
-            this.display1.TabIndex = 80;
-            this.display1.Text = "88888888";
+            this.display1.Size = new System.Drawing.Size(228, 49);
+            this.display1.TabIndex = 96;
+            this.display1.TabStop = false;
+            this.display1.Value = null;
             // 
             // frmVirtualLEDs
             // 
@@ -572,7 +652,7 @@
             this.Controls.Add(this.label15);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "frmVirtualLEDs";
-            this.Text = "LEDJeb";
+            this.Text = "LEDJeb Client 0.2";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmVirtualLEDs_FormClosing);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -605,21 +685,21 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel tssStatus;
         private System.Windows.Forms.Timer tmrCheckData;
-        private MAX7219Label display1;
-        private MAX7219Label display2;
-        private MAX7219Label display3;
-        private MAX7219Label display4;
-        private MAX7219Label display6;
-        private MAX7219Label display5;
-        private MAX7219Label display7;
-        private MAX7219Label display8;
-        private MAX7219Label display9;
-        private MAX7219Label display10;
-        private MAX7219Label display12;
-        private MAX7219Label display11;
-        private MAX7219Label display13;
-        private MAX7219Label display14;
-        private MAX7219Label display15;
-        private MAX7219Label display16;
+        private MAX7219Display display1;
+        private MAX7219Display display2;
+        private MAX7219Display display4;
+        private MAX7219Display display3;
+        private MAX7219Display display6;
+        private MAX7219Display display5;
+        private MAX7219Display display7;
+        private MAX7219Display display8;
+        private MAX7219Display display9;
+        private MAX7219Display display10;
+        private MAX7219Display display12;
+        private MAX7219Display display11;
+        private MAX7219Display display13;
+        private MAX7219Display display14;
+        private MAX7219Display display15;
+        private MAX7219Display display16;
     }
 }

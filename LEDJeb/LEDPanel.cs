@@ -11,8 +11,7 @@
  * 
  * 1. Send init packet upon successful connection (write reg 16 with display #)
  * 2. Provide configuration interface for # of displays and what goes to which display
- * 3. Support decimal points
- * 4. ACK/NAK feedback from controller (power lost in mid-stream = no idea how many displays are there)
+ * 3. ACK/NAK feedback from controller (power lost in mid-stream = no idea how many displays are there)
  * 
  */
 
@@ -30,100 +29,99 @@ namespace LEDJeb
     /// </summary>
     public class LEDPanel
     {
-        private string[] m_LEDs;
-        private List<IDataStream> m_DataStreams;
+        private List<IDataStream> m_DataStreams = new List<IDataStream>();
 
-        public void Initialize(int p_LEDCount)
+        private string[] m_LEDReadout;      // Holds actual readout text (ie "  123456")
+        private DisplayVar[] m_LEDVars;     // Tells logic which flight var goes where
+        private int[] m_LEDDecimalPlaces;   // Tells logic how many decimal places should go on the display
+
+        private bool m_UserIdInProgress = false;
+
+        public enum DisplayVar
         {
-            m_LEDs = new string[p_LEDCount];
-            m_DataStreams = new List<IDataStream>();
+            Altitude,
+            Apoapsis,
+            ApoapsisETA,
+            BLANK,
+            FlightMissionTime,
+            FlightVelocity,
+            ManeuverBurnTime,
+            ManeuverDeltaV,
+            ManeuverETA,
+            OrbitalInclination,
+            OrbitalPeriod,
+            Periapsis,
+            PeriapsisETA,
+            TargetDistance,
+            TargetETA,
+            TargetRelativeInclination,
+            TargetRelativeV
         }
 
-        /// <summary>
-        /// Adds a logical device to the update list
-        /// This will either be a TCP socket or a COM port, as wrapped in an IDataStream interface
-        /// </summary>
-        /// <param name="p_DataStream"></param>
-        public void RegisterDevice(IDataStream p_DataStream)
+        public void InitializeFromConfig()
         {
-            m_DataStreams.Add(p_DataStream);
+            int ledCount = LEDJebBehavior.GetConfigDisplayCount();
+            IDataStream[] configStreams = LEDJebBehavior.GetConfigDataStreams();
+
+            m_LEDReadout = new string[ledCount];
+            m_LEDVars = LEDJebBehavior.GetConfigDisplayVars();
+            m_LEDDecimalPlaces = LEDJebBehavior.GetConfigDisplayDecimalPlaces();
+
+            m_DataStreams.AddRange(configStreams);
         }
 
         public void LoadFlightData(LEDJebFlightData p_FlightData)
         {
-            // Map numbers to readouts
-            // Orbital Data
-            m_LEDs[0] = FormatDistance(p_FlightData.orbitalApoapsis);
-            m_LEDs[1] = FormatTime(p_FlightData.orbitalApoapsisETA);
-
-            m_LEDs[2] = FormatDistance(p_FlightData.orbitalPeriapsis);
-            m_LEDs[3] = FormatTime(p_FlightData.orbitalPeriapsisETA);
-
-            m_LEDs[4] = FormatDistance(p_FlightData.flightAltitude);
-            m_LEDs[5] = FormatTime(p_FlightData.orbitalPeriod);
-            m_LEDs[6] = FormatDistance(p_FlightData.orbitalInclanation * 10D);
-
-            // Node/Intercept Data
-
-            if (p_FlightData.HasManeuverNode)
-            {
-                // We have a node
-                // TODO: When this goes negative, show as T+
-                // thought:
-                //  1. invert the result. 2....
-                //  T- show as "- 000000", show "- 999999" on overflow
-                //  T+ show as "00000000", show "99999999" on overflow
-
-                // For burn time, refer to this code:
-                // https://github.com/MuMech/MechJeb2/blob/master/MechJeb2/MechJebModuleNodeExecutor.cs
-
-                m_LEDs[7] = FormatDistance(p_FlightData.maneuverDeltaVRemaining);
-                m_LEDs[8] = FormatTime(p_FlightData.maneuverNodeETA);
-                m_LEDs[9] = "        "; // todo: FormatTime(p_FlightData.maneuverBurnTimeRemaining);
-            }
-            else
-            {
-                // No node, blank out displays
-                m_LEDs[7] = "        "; // delta v remain
-                m_LEDs[8] = "        "; // time to node
-                m_LEDs[9] = "        "; // burn time remaining
-            }
-
-            // Target Data
-
-            if (p_FlightData.HasTargetData)
-            {
-                m_LEDs[10] = FormatDistance(p_FlightData.targetRelativeVelocity * 10D); // relative velocity
-                m_LEDs[11] = "        "; // time to intercept
-                m_LEDs[12] = FormatDistance(p_FlightData.targetDistance); // distance to target
-                m_LEDs[13] = FormatDistance(p_FlightData.targetAscendingNode * 10D); // relative inclination
-            }
-            else
-            {
-                m_LEDs[10] = "        "; // relative velocity
-                m_LEDs[11] = "        "; // time to intercept
-                m_LEDs[12] = "        "; // distance to target
-                m_LEDs[13] = "        "; // relative inclination
-            }
-
-            m_LEDs[14] = FormatDistance(p_FlightData.orbitalVelocity * 10D);    // vessel velocity
-            m_LEDs[15] = FormatTime(p_FlightData.flightMissionTime);          // mission time
+            for (int i = 1; i <= m_LEDReadout.Length; i++)
+                m_LEDReadout[i - 1] = FormatFlightVar(i, p_FlightData);
 
             //p_Mono.Debug("Loadp_FlightData: alt={0} raw={1} Idsc={2}", altitude, m_LEDs[4], m_DataStreams.Count);
 
+            // Push changes out to any configured clients
             foreach (IDataStream Ids in m_DataStreams)
                 UpdateDevice(Ids);
         }
 
+        /// <summary>
+        /// Tells display controller how many display modules are attached to it
+        /// </summary>
+        public void InitializeAllDevices()
+        {
+            byte[] initPacketBytes = new byte[4];
+
+            initPacketBytes[0] = 0x02; // STX
+            initPacketBytes[1] = 16;   // Controller "display count" register
+            initPacketBytes[2] = (byte)m_LEDReadout.Length;
+            initPacketBytes[3] = 0x03; // ETX
+
+            foreach (IDataStream ids in m_DataStreams)
+                ids.Send(initPacketBytes);
+        }
+
+        /// <summary>
+        /// Writes a decimal number to all displays identifying which display is which
+        /// </summary>
+        public void BeginIdentifyDisplaysToUser()
+        {
+            m_UserIdInProgress = true;
+
+            // TODO: Send down display IDs
+        }
+
+        public void EndIdentifyDisplaysToUser()
+        {
+            m_UserIdInProgress = false;
+        }
+
         public void UpdateDevice(IDataStream p_DataStream)
         {
-            byte[] packet = new byte[m_LEDs.Length + 3];
+            byte[] packet = new byte[m_LEDReadout.Length + 3];
             int i = 0;
 
-            byte[][] readoutdata = new byte[m_LEDs.Length][];
+            byte[][] readoutdata = new byte[m_LEDReadout.Length][];
 
-            for (i = 0; i < m_LEDs.Length; i++)
-                readoutdata[i] = System.Text.Encoding.ASCII.GetBytes(m_LEDs[i]);
+            for (i = 0; i < m_LEDReadout.Length; i++)
+                readoutdata[i] = System.Text.Encoding.ASCII.GetBytes(m_LEDReadout[i]);
 
             // Packet format for decimal readout:
             // [STX][REG][D(n)][D(n-1)]...[D(1)][ETX]
@@ -148,13 +146,13 @@ namespace LEDJeb
                 packet[1] = (byte)column; // Address registers 1-8 for column number
                 i = 2;
 
-                for (int disp = m_LEDs.Length - 1; disp >= 0; disp--)
+                for (int disp = m_LEDReadout.Length - 1; disp >= 0; disp--)
                 {
-                    byte db;
+                    byte db, dbOut;
                     
                     // Right-pad any short readouts with spaces
-                    if (m_LEDs[disp].Length >= column)
-                        db = (byte)m_LEDs[disp][column - 1];
+                    if (m_LEDReadout[disp].Length >= column)
+                        db = (byte)m_LEDReadout[disp][column - 1];
                     else
                         db = (byte)' ';
                     
@@ -172,20 +170,37 @@ namespace LEDJeb
                     //
                     // Set MSB (0x80) if decimal point should be turned on for digit
 
+                    dbOut = 0x00;
+
                     if (db == ' ')
-                        packet[i++] = 15;
+                        dbOut = 15;
                     else if (db == '-')
-                        packet[i++] = 10;
+                        dbOut = 10;
                     else if (db == 'E')
-                        packet[i++] = 11;
+                        dbOut = 11;
                     else if (db == 'H')
-                        packet[i++] = 12;
+                        dbOut = 12;
                     else if (db == 'L')
-                        packet[i++] = 13;
+                        dbOut = 13;
                     else if (db == 'P')
-                        packet[i++] = 14;
+                        dbOut = 14;
                     else
-                        packet[i++] = (byte)(db - (byte)'0');
+                        dbOut = (byte)(db - (byte)'0');
+
+                    // Apply decimal point from precision indicator
+
+                    if (IsTimeReadout(m_LEDVars[disp]))
+                    {
+                        if ((column == 2 || column == 4 || column == 6) && m_LEDReadout[disp].Trim() != "")
+                            dbOut |= 0x80;
+                    }
+                    else
+                    {
+                        if ((m_LEDDecimalPlaces[disp] > 0 && column == (8 - m_LEDDecimalPlaces[disp])) && m_LEDReadout[disp].Trim() != "")
+                            dbOut |= 0x80;
+                    }
+
+                    packet[i++] = dbOut;
                 }
 
                 //p_Mono.Debug("LEDJeb is sending {0} bytes of data: {1}", packet.Length, System.Text.Encoding.ASCII.GetString(packet));
@@ -196,17 +211,40 @@ namespace LEDJeb
                 }
                 catch (Exception ex)
                 {
-                    // Loop is redundant as Send() should handle any exception
+                    // Catch is redundant as Send() should handle any exception
 
                     FlightGlobals.print(String.Format("LEDJeb: Unhandled exception in IDataStream.Send(): {0}", ex.Message));
                 }
             }
         }
 
+        private bool IsTimeReadout(DisplayVar p_Var)
+        {
+            return (p_Var == DisplayVar.ApoapsisETA || p_Var == DisplayVar.FlightMissionTime ||
+                p_Var == DisplayVar.ManeuverBurnTime || p_Var == DisplayVar.ManeuverETA ||
+                p_Var == DisplayVar.OrbitalPeriod || p_Var == DisplayVar.PeriapsisETA ||
+                p_Var == DisplayVar.TargetETA);
+        }
+
+        private string FormatFlightVar(int p_DisplayIndex, LEDJebFlightData p_FlightData)
+        {
+            DisplayVar sourceVar = m_LEDVars[p_DisplayIndex - 1];
+            double valueOfVar = p_FlightData.FromEnum(sourceVar);
+
+            if (IsTimeReadout(sourceVar))
+                return FormatTime(valueOfVar);
+            else
+                return FormatDistance(valueOfVar * (Math.Pow(10, m_LEDDecimalPlaces[p_DisplayIndex - 1])));
+        }
+
         private string FormatDistance(double p_Distance)
         {
-            if (p_Distance < -9999)
+            if (p_Distance == double.NaN)
                 return "        ";
+            else if (p_Distance < -99999999)
+                return "-     0L";
+            else if (p_Distance < 0)
+                return String.Format("-{0,7:0}", -p_Distance);
             else if (p_Distance <= 99999999)
                 return String.Format("{0,8:0}", p_Distance);
             else if (p_Distance <= 99999999D * 1000D)
@@ -214,7 +252,7 @@ namespace LEDJeb
             else if (p_Distance <= 99999999D * 1000D * 1000D)
                 return String.Format("{0,8:0}", p_Distance / (1000 * 1000));
             else
-                return "99999999";
+                return "        ";
         }
 
         /// <summary>
@@ -225,18 +263,34 @@ namespace LEDJeb
         /// <returns></returns>
         private string FormatTime(double p_Time)
         {
-            if (p_Time < 0)
+            if (p_Time == double.NaN)
                 return "        ";
+
+            bool tMinus = p_Time < 0;
+
+            if (tMinus)
+                p_Time = -p_Time;
 
             int seconds = (int)p_Time % 60;
             int minutes = ((int)p_Time / 60) % 60;
             int hours = ((int)p_Time / 3600) % 60;
             int days = ((int)p_Time / 3600 * 24);
 
-            if (days > 99)
-                return String.Format("--{1:00}{2:00}{3:00}", days, hours, minutes, seconds);
+            if (tMinus)
+            {
+                if (days > 0)
+                    return String.Format("--{0:00}{1:00}{2:00}", days, hours, minutes);
+                else
+                    return String.Format("- {0:00}{1:00}{2:00}", hours, minutes, seconds);
+
+            }
             else
-                return String.Format("{0:00}{1:00}{2:00}{3:00}", days, hours, minutes, seconds);
+            {
+                if (days > 99)
+                    return String.Format("--{0:00}{1:00}{2:00}", hours, minutes, seconds);
+                else
+                    return String.Format("{0:00}{1:00}{2:00}{3:00}", days, hours, minutes, seconds);
+            }
         }
     }
 }
