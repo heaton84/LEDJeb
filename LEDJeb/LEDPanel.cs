@@ -212,8 +212,7 @@ namespace LEDJeb
                 catch (Exception ex)
                 {
                     // Catch is redundant as Send() should handle any exception
-
-                    FlightGlobals.print(String.Format("LEDJeb: Unhandled exception in IDataStream.Send(): {0}", ex.Message));
+                    LEDJebBehavior.LogError("Unhandled exception in IDataStream.Send(): {0}", ex.Message);
                 }
             }
         }

@@ -31,6 +31,7 @@ namespace LEDJeb
         protected SocketDataStream m_SDS = null;
 
         protected bool m_RunFlag = false;
+        public static bool EnableDebugLogging = true;
 
         private static PluginConfiguration Config = PluginConfiguration.CreateForType<LEDJebBehavior>(null);
 
@@ -39,7 +40,7 @@ namespace LEDJeb
         /// </summary>
         public void Awake()
         {
-            print("LEDJebBehavior.Awake() invoked");
+            LEDJebBehavior.LogDebug("Awake()  LEDJeb v0.21 reporting for duty!");
 
             // Ask game engine not to release this class at... some point
             // Not yet sure why this is relevant, just that it is good practice.
@@ -49,6 +50,17 @@ namespace LEDJeb
             m_UpdateTimer.Elapsed += new ElapsedEventHandler(UpdateTimer_Elapsed);
 
             Config.load();
+
+            try
+            {
+                if (Config.GetValue<int>("DebugMode") == 0)
+                    EnableDebugLogging = false;
+            }
+            catch (Exception)
+            {
+                // Probably not there
+                EnableDebugLogging = false;
+            }
 
             // Set up inteface to virtual panel,
             // currently hard-coded to 16 readouts
@@ -61,7 +73,7 @@ namespace LEDJeb
         /// </summary>
         public void Start()
         {
-            print("LEDJebBehavior.Start() invoked");
+            LEDJebBehavior.LogDebug("Start()  In-game flight mode started");
 
             m_RunFlag = true;
             m_UpdateTimer.Interval = GetConfigUpdateRate();
@@ -70,7 +82,7 @@ namespace LEDJeb
 
         public void OnApplicationQuit()
         {
-            print("LEDJebBehavior.OnApplicationQuit() invoked");
+            LEDJebBehavior.LogDebug("OnApplicationQuit()  KSP shutting down, we will do the same.");
 
             m_RunFlag = false;
             m_UpdateTimer.Enabled = false;
@@ -92,23 +104,20 @@ namespace LEDJeb
                     m_Panel.LoadFlightData(flightData);
                 }
                 else
-                    print("LEDJebBehavior.UpdateTimer  FightGlobals was NULL!");
+                    LEDJebBehavior.LogError("UpdateTimer() FlightGlobals was NULL!");
             }
             catch (Exception ex)
             {
-                print("LEDJebBehavior.UpdateTimer  " + ex.Message + ex.StackTrace);
+                LEDJebBehavior.LogError("UpdateTimer() {0}", ex.Message);
             }
-        }
-
-        public void Debug(string p_msg, params object[] p_args)
-        {
-            print(String.Format(p_msg, p_args));
         }
 
         #region Configuration
 
         private static void SetDefaultConfig()
         {
+            Config.SetValue("DebugMode", 0);
+
             Config.SetValue("DisplayCount", 16);
 
             Config.SetValue("UpdateRateMS", 100);
@@ -120,8 +129,8 @@ namespace LEDJeb
             // Type = "Socket" or "Serial"
             Config.SetValue("DataStreamType1", "Socket");
 
-            // Address = port # for socket, device ID for serial (ie "COM1" or "/dev/ttyS1")
-            Config.SetValue("DataStreamAddress1", "5155");
+            // Address = ip:port for socket, device ID for serial (ie "COM1" or "/dev/ttyS1")
+            Config.SetValue("DataStreamAddress1", "127.0.0.1:5155");
 
             // Displays
 
@@ -178,13 +187,13 @@ namespace LEDJeb
             }
             catch (Exception)
             {
-                FlightGlobals.print("LEDJeb: Config DisplayCount is not a parsable integer number! Defaulting to 1 display.");
+                LogError("Config DisplayCount is not a parsable integer number! Defaulting to 1 display.");
                 count = 1;
             }
 
             if (count == -1)
             {
-                FlightGlobals.print("LEDJeb: Looks like config doesn't exist. Setting up default config.");
+                LogDebug("Looks like config doesn't exist. Setting up default config.");
                 SetDefaultConfig();
 
                 count = Config.GetValue<int>("DisplayCount", 1);
@@ -205,7 +214,7 @@ namespace LEDJeb
             }
             catch (Exception)
             {
-                FlightGlobals.print("LEDJeb: Config UpdateRateMS is not a parsable integer number! Defaulting to 1 second.");
+                LogError("Config UpdateRateMS is not a parsable integer number! Defaulting to 1 second.");
                 rate = 1000;
             }
 
@@ -221,6 +230,8 @@ namespace LEDJeb
             string streamType;
             string streamAddress;
 
+            LogDebug("GetConfigDataStreams()  streamCount={0}", streamCount);
+
             for (int i = 1; i <= streamCount; i++)
             {
                 streamType = Config.GetValue<string>("DataStreamType" + i.ToString()).ToLower();
@@ -230,16 +241,19 @@ namespace LEDJeb
                 {
                     SocketDataStream sds = new SocketDataStream();
 
-                    sds.Initialize(Convert.ToInt32(streamAddress));
+                    LogDebug("GetConfigDataStreams()  streamAddress={0}", streamAddress);
+
+                    sds.Initialize(streamAddress);
 
                     streams.Add(sds);
                 }
                 else if (streamType == "serial")
                 {
                     // TODO: Create SerialDataStream class
+                    LogError("Serial data stream not implemented yet");
                 }
                 else
-                    FlightGlobals.print("LEDJeb: Unknown data stream type for config DataStreamType" + i.ToString() + "! Ignoring stream.");
+                    LogError("Unknown data stream type for config DataStreamType{0} {{1}! Ignoring stream.", i, streamType);
             }
 
             return streams.ToArray();
@@ -261,7 +275,7 @@ namespace LEDJeb
                 }
                 catch (Exception ex)
                 {
-                    FlightGlobals.print("LEDJeb: Unknown flight variable for Display " + i.ToString() + ": " + displayVar + ", defaulting to blank " + ex.Message);
+                    LogError("Unknown flight variable for display {0}: {1}, defaulting to blank. {2}", i, displayVar, ex.Message);
                 }
             }
 
@@ -281,12 +295,23 @@ namespace LEDJeb
                 }
                 catch (Exception)
                 {
-                    FlightGlobals.print("LEDJeb: Bad or missing decimal count for for Display " + i.ToString() + ", defaulting to 0");
+                    LogError("Bad or missing decimal count for for Display {0}, defaulting to 0", i);
                     decimals[i - 1] = 0;
                 }
             }
 
             return decimals;
+        }
+
+        public static void LogDebug(string p_Message, params object[] p_Args)
+        {
+            if (EnableDebugLogging)
+                FlightGlobals.print("LEDJeb debug " + String.Format(p_Message, p_Args));
+        }
+
+        public static void LogError(string p_Message, params object[] p_Args)
+        {
+            FlightGlobals.print("LEDJeb ERROR " + String.Format(p_Message, p_Args));
         }
 
         #endregion

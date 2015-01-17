@@ -6,3 +6,5 @@ C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\bin\Debug\LEDJebVirt
 C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\bin\Debug\LEDJebVirtualPanel.pdb
 C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\LEDJebVirtualPanel.exe
 C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\obj\Debug\LEDJebVirtualPanel.pdb
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\bin\Debug\LEDJebVirtualPanel.exe.config
+C:\Users\Josh\Desktop\KSP Readout\LEDJeb\LEDJebVirtualPanel\bin\Debug\App.config

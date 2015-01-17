@@ -241,7 +241,7 @@ namespace LEDJebVirtualPanel
                 m_NextInChain.ClockData(carry);
         }
 
-        public void Load()
+        public void LoadData()
         {
             int reg = (int)(m_HighByte & 0x0f);
 
@@ -250,7 +250,7 @@ namespace LEDJebVirtualPanel
             UpdateDisplay();
 
             if (m_NextInChain != null)
-                m_NextInChain.Load();
+                m_NextInChain.LoadData();
         }
 
         private void UpdateDisplay()
@@ -294,5 +294,25 @@ namespace LEDJebVirtualPanel
 
 
         #endregion
+
+        public new event EventHandler DoubleClick
+        {
+            add
+            {
+                base.DoubleClick += value;
+                foreach (Control control in Controls)
+                {
+                    control.DoubleClick += value;
+                }
+            }
+            remove
+            {
+                base.DoubleClick -= value;
+                foreach (Control control in Controls)
+                {
+                    control.DoubleClick -= value;
+                }
+            }
+        }
     }
 }

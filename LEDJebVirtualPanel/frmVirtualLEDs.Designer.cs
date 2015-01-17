@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmVirtualLEDs));
             this.label31 = new System.Windows.Forms.Label();
             this.label32 = new System.Windows.Forms.Label();
             this.label33 = new System.Windows.Forms.Label();
@@ -50,7 +51,11 @@
             this.label15 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tssStatus = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripSplitButton1 = new System.Windows.Forms.ToolStripSplitButton();
+            this.configToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tmrCheckData = new System.Windows.Forms.Timer(this.components);
+            this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.display16 = new LEDJebVirtualPanel.MAX7219Display();
             this.display15 = new LEDJebVirtualPanel.MAX7219Display();
             this.display14 = new LEDJebVirtualPanel.MAX7219Display();
@@ -209,9 +214,9 @@
             this.label23.ForeColor = System.Drawing.Color.White;
             this.label23.Location = new System.Drawing.Point(81, 262);
             this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(79, 15);
+            this.label23.Size = new System.Drawing.Size(71, 15);
             this.label23.TabIndex = 61;
-            this.label23.Text = "APLTITUDE";
+            this.label23.Text = "ALTITUDE";
             // 
             // label19
             // 
@@ -282,7 +287,8 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tssStatus});
+            this.tssStatus,
+            this.toolStripSplitButton1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 712);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1008, 22);
@@ -293,10 +299,36 @@
             // 
             this.tssStatus.BackColor = System.Drawing.SystemColors.Control;
             this.tssStatus.Name = "tssStatus";
-            this.tssStatus.Size = new System.Drawing.Size(993, 17);
+            this.tssStatus.Size = new System.Drawing.Size(961, 17);
             this.tssStatus.Spring = true;
             this.tssStatus.Text = "Waiting for in-game flight...";
             this.tssStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // toolStripSplitButton1
+            // 
+            this.toolStripSplitButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripSplitButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.configToolStripMenuItem,
+            this.testToolStripMenuItem});
+            this.toolStripSplitButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripSplitButton1.Image")));
+            this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripSplitButton1.Name = "toolStripSplitButton1";
+            this.toolStripSplitButton1.Size = new System.Drawing.Size(32, 20);
+            this.toolStripSplitButton1.Text = "toolStripSplitButton1";
+            // 
+            // configToolStripMenuItem
+            // 
+            this.configToolStripMenuItem.Name = "configToolStripMenuItem";
+            this.configToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.configToolStripMenuItem.Text = "&Configure...";
+            this.configToolStripMenuItem.Click += new System.EventHandler(this.configToolStripMenuItem_Click);
+            // 
+            // testToolStripMenuItem
+            // 
+            this.testToolStripMenuItem.Name = "testToolStripMenuItem";
+            this.testToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.testToolStripMenuItem.Text = "&Test";
+            this.testToolStripMenuItem.Click += new System.EventHandler(this.testToolStripMenuItem_Click);
             // 
             // tmrCheckData
             // 
@@ -652,7 +684,7 @@
             this.Controls.Add(this.label15);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "frmVirtualLEDs";
-            this.Text = "LEDJeb Client 0.2";
+            this.Text = "LEDJeb Client 0.21";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmVirtualLEDs_FormClosing);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -701,5 +733,9 @@
         private MAX7219Display display14;
         private MAX7219Display display15;
         private MAX7219Display display16;
+        private System.Windows.Forms.ToolStripSplitButton toolStripSplitButton1;
+        private System.Windows.Forms.ToolStripMenuItem configToolStripMenuItem;
+        private System.Windows.Forms.ColorDialog colorDialog;
+        private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
     }
 }
