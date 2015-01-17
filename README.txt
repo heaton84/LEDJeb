@@ -40,6 +40,8 @@ Currently, the following readouts are not available:
 
 Date        Ver #  Author       Changes
 ----------  -----  -----------  -----------------------------
+01/17/2015  0.21   heaton84     Added debug logging and IP options
+
 01/11/2015  0.2    heaton84     Added decimal points on client app
                                 Removed dependency on 7-segment font
                                 Added config hooks
