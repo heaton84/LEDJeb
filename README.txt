@@ -68,6 +68,7 @@ TODO List:
 * Periapsis shows way negative on launch
 * Velocity reads wrong on launch (does not match navball)
 * Draggable/sizable LED readouts on client
+* Add spaceplane variables (h+v speed, drag, lift, etc.)
 
 
 *************************************************
