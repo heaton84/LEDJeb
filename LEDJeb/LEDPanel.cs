@@ -238,7 +238,7 @@ namespace LEDJeb
 
         private string FormatDistance(double p_Distance)
         {
-            if (p_Distance == double.NaN)
+            if (double.IsNaN(p_Distance))
                 return "        ";
             else if (p_Distance < -99999999)
                 return "-     0L";
@@ -262,13 +262,16 @@ namespace LEDJeb
         /// <returns></returns>
         private string FormatTime(double p_Time)
         {
-            if (p_Time == double.NaN)
+            if (double.IsNaN(p_Time))
                 return "        ";
 
             bool tMinus = p_Time < 0;
 
             if (tMinus)
                 p_Time = -p_Time;
+
+            // Sort of "calms" time down a bit
+            p_Time = Math.Floor(p_Time);
 
             int seconds = (int)p_Time % 60;
             int minutes = ((int)p_Time / 60) % 60;

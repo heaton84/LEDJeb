@@ -10,7 +10,8 @@
  * TODO List:
  * 
  * 1. Remember last position
- * 2. Support resizing so it's not fixed to 1024x768
+ * 2. Support dynamic sizing of MAX7219 readouts & labels
+ * 3. Support custom layouts
  */
 
 using System;
@@ -35,13 +36,18 @@ namespace LEDJebVirtualPanel
         protected System.Text.Encoding m_Encoding = System.Text.Encoding.GetEncoding("ISO-8859-1");
 
         private int m_DisplayCount = 0;
+        private decimal m_Contrast = 32;
 
         private bool m_DebugFlag = false;
         protected System.IO.StreamWriter m_LogStream = null;
 
+        protected DateTime m_LastPacketReceived = DateTime.MinValue;
+
         public frmVirtualLEDs()
         {
             InitializeComponent();
+
+            InitializeDynamicLayout();
 
             try
             {
@@ -148,9 +154,11 @@ namespace LEDJebVirtualPanel
 
             // INITIALIZE DISPLAYS
 
+            MacroWriteAllDisplays(0x09, 0xFF);  // Code B on everything
+            MacroWriteAllDisplays(0x0A, 0x0F);  // Full intensity
             MacroWriteAllDisplays(0x0B, 8);     // Set scan limit = 8
             MacroWriteAllDisplays(0x0C, 1);     // Disable shutdown mode
-            MacroWriteAllDisplays(0x0A, 0x0F);  // Full intensity
+            MacroWriteAllDisplays(0x0F, 0x00);  // Turn off display test
 
             // BLANK ALL READOUTS
 
@@ -171,12 +179,39 @@ namespace LEDJebVirtualPanel
 
                 LogDebug("ConnectionAccept()  Connection established from {0}:{1}", src.Address.ToString(), src.Port);
                 tssStatus.Text = "Connected to game at " + src.Address.ToString() + ":" + src.Port.ToString();
+                m_LastPacketReceived = DateTime.Now;
             }
             catch (Exception ex)
             {
                 LogError("ConnectionAccept()  {0}{1}", ex.Message, ex.StackTrace);
 
                 m_ListenerSocket.BeginAccept(new AsyncCallback(ConnectionAccept), m_ListenerSocket);
+            }
+        }
+
+        public void ResetConnection()
+        {
+            try
+            {
+                if (m_HandlerSocket != null)
+                    m_HandlerSocket.Disconnect(false);
+            }
+            catch (Exception)
+            {
+
+            }
+            finally
+            {
+                m_HandlerSocket = null;
+            }
+
+            try
+            {
+                m_ListenerSocket.BeginAccept(new AsyncCallback(ConnectionAccept), m_ListenerSocket);
+            }
+            catch (Exception ex)
+            {
+                LogError("ResetConnection()  {0}{1}", ex.Message, ex.StackTrace);
             }
         }
 
@@ -313,10 +348,18 @@ namespace LEDJebVirtualPanel
             {
                 if (m_HandlerSocket != null)
                 {
-                    if (!m_HandlerSocket.Connected)
+                    if (DateTime.Now.Subtract(m_LastPacketReceived).TotalSeconds > 15)
                     {
-                        // Bump timer, reconnect after 10 passes
+                        tssStatus.Text = String.Format("{0:HH:mm:ss} Receive timeout", DateTime.Now);
+
+                        ResetConnection();
+                        return;
                     }
+
+                    System.Diagnostics.Stopwatch gdiTimer = new System.Diagnostics.Stopwatch();
+                    int byteCount = 0;
+
+                    gdiTimer.Start();
 
                     while (m_HandlerSocket.Available >= m_DisplayCount + 3)
                     {
@@ -329,9 +372,19 @@ namespace LEDJebVirtualPanel
                         LogDebug("tmrCheckData_Tick() Got {0} bytes", chars);
 
                         ConsumePacket(packet);
-
-                        tssStatus.Text = String.Format("{0:HH:mm:ss} read {1} chars from game / {2} waiting", DateTime.Now, chars, m_HandlerSocket.Available);
+                        byteCount += chars;
+                        m_LastPacketReceived = DateTime.Now;
                     }
+
+                    gdiTimer.Stop();
+                    long gdiLoad = gdiTimer.ElapsedMilliseconds;
+
+                    if (gdiLoad > 100)
+                        gdiLoad = 100;
+
+                    tssStatus.Text = String.Format("{0:HH:mm:ss} Connected to game", DateTime.Now);
+                    tssGDILoad.Value = (int)gdiLoad;
+
                 }
             }
             catch (SocketException sckEx)
@@ -394,7 +447,29 @@ namespace LEDJebVirtualPanel
 
         private void configToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            frmConfigReadouts config = new frmConfigReadouts();
 
+            config.Shear = display1.DigitShear;
+            config.DigitSpacing = display1.DigitSpacing;
+            config.SegmentSpacing = display1.SegmentPadding;
+            config.SegmentThickness = display1.SegmentWidth;
+
+            if (config.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                MAX7219Display d = display1;
+
+                while (d != null)
+                {
+                    d.DigitShear = config.Shear;
+                    d.DigitSpacing = config.DigitSpacing;
+                    d.SegmentPadding = config.SegmentSpacing;
+                    d.SegmentWidth = config.SegmentThickness;
+
+                    d = d.NextInChain;
+                }
+
+                SaveConfig();
+            }
         }
 
         private void PickColor(MAX7219Display p_DisplayTarget)
@@ -403,8 +478,8 @@ namespace LEDJebVirtualPanel
 
             if (dr == DialogResult.OK)
             {
-                p_DisplayTarget.ColorLight = colorDialog.Color;
-                p_DisplayTarget.ColorDark = p_DisplayTarget.ColorBackground = Color.FromArgb(p_DisplayTarget.ColorLight.R / 8, p_DisplayTarget.ColorLight.G / 8, p_DisplayTarget.ColorLight.B / 8);
+                p_DisplayTarget.ForeColor = colorDialog.Color;
+                p_DisplayTarget.BackColor = Color.FromArgb(p_DisplayTarget.ForeColor.R / 8, p_DisplayTarget.ForeColor.G / 8, p_DisplayTarget.ForeColor.B / 8);
             }
 
         }
@@ -428,7 +503,12 @@ namespace LEDJebVirtualPanel
             if (testToolStripMenuItem.Checked)
             {
                 for (int i = 1; i <= 8; i++)
-                    MacroWriteAllDisplays((byte)i, (byte)i);
+                {
+                    if (i % 2 == 0)
+                        MacroWriteAllDisplays((byte)i, (byte)((9 - i) | 0x80));
+                    else
+                        MacroWriteAllDisplays((byte)i, (byte)(9 - i));
+                }
             }
             else
             {
@@ -446,6 +526,138 @@ namespace LEDJebVirtualPanel
         private void LogError(string p_Msg, params object[] p_Args)
         {
             m_LogStream.WriteLine("### " + String.Format(p_Msg, p_Args));
+        }
+
+        private void testDatarateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Start blasting junk to all displays
+        }
+
+        private void SaveConfig()
+        {
+            // Uses segment config from root display
+            // Uses color from each display
+
+            Properties.Settings.Default.Contrast = m_Contrast;
+            Properties.Settings.Default.DigitShear = display1.DigitShear;
+            Properties.Settings.Default.DigitSpacing = display1.DigitSpacing;
+            Properties.Settings.Default.SegmentPadding = display1.SegmentPadding;
+            Properties.Settings.Default.SegmentWidth = display1.SegmentWidth;
+
+            // Individual colors
+            Properties.Settings.Default.Color1 = display1.ForeColor;
+            Properties.Settings.Default.Color2 = display2.ForeColor;
+            Properties.Settings.Default.Color3 = display3.ForeColor;
+            Properties.Settings.Default.Color4 = display4.ForeColor;
+            Properties.Settings.Default.Color5 = display5.ForeColor;
+            Properties.Settings.Default.Color6 = display6.ForeColor;
+            Properties.Settings.Default.Color7 = display7.ForeColor;
+            Properties.Settings.Default.Color8 = display8.ForeColor;
+            Properties.Settings.Default.Color9 = display9.ForeColor;
+            Properties.Settings.Default.Color10 = display10.ForeColor;
+            Properties.Settings.Default.Color11 = display11.ForeColor;
+            Properties.Settings.Default.Color12 = display12.ForeColor;
+            Properties.Settings.Default.Color13 = display13.ForeColor;
+            Properties.Settings.Default.Color14 = display14.ForeColor;
+            Properties.Settings.Default.Color15 = display15.ForeColor;
+            Properties.Settings.Default.Color16 = display16.ForeColor;
+
+            Properties.Settings.Default.Save();
+        }
+
+        private void LoadConfig()
+        {
+            m_Contrast = Properties.Settings.Default.Contrast;
+
+            // Individual colors
+            display1.ForeColor = Properties.Settings.Default.Color1;
+            display2.ForeColor = Properties.Settings.Default.Color2;
+            display3.ForeColor = Properties.Settings.Default.Color3;
+            display4.ForeColor = Properties.Settings.Default.Color4;
+            display5.ForeColor = Properties.Settings.Default.Color5;
+            display6.ForeColor = Properties.Settings.Default.Color6;
+            display7.ForeColor = Properties.Settings.Default.Color7;
+            display8.ForeColor = Properties.Settings.Default.Color8;
+            display9.ForeColor = Properties.Settings.Default.Color9;
+            display10.ForeColor = Properties.Settings.Default.Color10;
+            display11.ForeColor = Properties.Settings.Default.Color11;
+            display12.ForeColor = Properties.Settings.Default.Color12;
+            display13.ForeColor = Properties.Settings.Default.Color13;
+            display14.ForeColor = Properties.Settings.Default.Color14;
+            display15.ForeColor = Properties.Settings.Default.Color15;
+            display16.ForeColor = Properties.Settings.Default.Color16;
+
+            MAX7219Display d = display1;
+
+            while (d != null)
+            {
+                SetContrast(d);
+
+                d.DigitShear = Properties.Settings.Default.DigitShear;
+                d.DigitSpacing = Properties.Settings.Default.DigitSpacing;
+                d.SegmentPadding = Properties.Settings.Default.SegmentPadding;
+                d.SegmentWidth = Properties.Settings.Default.SegmentWidth;
+                
+                d = d.NextInChain;
+            }
+        }
+
+        private void SetContrast(MAX7219Display p_Display)
+        {
+            decimal c = m_Contrast / 255;
+
+            p_Display.BackColor = Color.FromArgb((int)(p_Display.ForeColor.R * c), (int)(p_Display.ForeColor.G * c), (int)(p_Display.ForeColor.B * c));
+        }
+
+        private void frmVirtualLEDs_Load(object sender, EventArgs e)
+        {
+            LoadConfig();
+            ResizeDynamicLayout();
+        }
+
+        #region Dynamic Layout
+
+        private List<PanelLayoutItem> m_PanelLayoutItems = new List<PanelLayoutItem>();
+
+        protected void InitializeDynamicLayout()
+        {
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display1, label1, 1, 8, "APOAPSIS"));
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display2, label2, 25, 8, "TIME TO APOAPSIS"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display3, label3, 1, 22, "PERIAPSIS"));
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display4, label4, 25, 22, "TIME TO PERIAPSIS"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display5, label5, 1, 36, "ALTITUDE"));
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display6, label6, 25, 36, "ORBITAL PERIOD"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display7, label7, 1, 49, "INCLINATION"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display8, label8, 51, 8, "DELTA V REMAINING"));
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display9, label9, 75, 8, "TIME TO NODE"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display10, label10, 75, 22, "BURN TIME REMAINING"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display11, label11, 51, 36, "RELATIVE VELOCITY"));
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display12, label12, 75, 36, "TIME TO INTERCEPT"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display13, label13, 51, 49, "DISTANCE TO TARGET"));
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display14, label14, 75, 49, "RELATIVE INCLINATION"));
+
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display15, label15, 1, 77, "VELOCITY"));
+            m_PanelLayoutItems.Add(new PanelLayoutItem(display16, label16, 25, 77, "MISSION TIME"));
+        }
+
+        protected void ResizeDynamicLayout()
+        {
+            foreach (PanelLayoutItem pli in m_PanelLayoutItems)
+                pli.PerformLayout(this.Size);
+        }
+
+        #endregion
+
+        private void frmVirtualLEDs_Resize(object sender, EventArgs e)
+        {
+            ResizeDynamicLayout();
         }
     }
 }

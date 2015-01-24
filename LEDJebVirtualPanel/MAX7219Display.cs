@@ -1,15 +1,9 @@
 ﻿/*
  * LEDJeb MAX7219 Display
  * 
- * BASED ON Dmitry Brant's 7-Segment display
- *    http://www.codeproject.com/Articles/37800/Seven-segment-LED-Control-for-NET
- *    me@dmitrybrant.com
- *    http://dmitrybrant.com
- * 
- * Author: heaton84 (as in, added MAX7219 logic)
- * Date:   1/10/2015
+ * Author: heaton84
+ * Date:   1/19/2015
  * Brief:  Emulates a MAX7219 controller per http://datasheets.maximintegrated.com/en/ds/MAX7219-MAX7221.pdf
- *         NOTE: Only BCODE mode is supported, as I don't yet have a way to render individual segments.
  * 
  * Usage:
  * 
@@ -24,7 +18,6 @@
  * TODO List:
  * 
  * 1. Support intensity
- * 2. Support non-BCODE mode
  * 
  */
 
@@ -36,6 +29,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace LEDJebVirtualPanel
 {
@@ -46,156 +40,235 @@ namespace LEDJebVirtualPanel
             InitializeComponent();
 
             this.SuspendLayout();
-            this.Name = "SevenSegmentArray";
-            this.Size = new System.Drawing.Size(100, 25);
-            this.Resize += new System.EventHandler(this.SevenSegmentArray_Resize);
+            this.Name = "max7219Display";
+            this.Size = new System.Drawing.Size(228, 49);
             this.ResumeLayout(false);
 
             this.TabStop = false;
-            elementPadding = new Padding(4, 4, 4, 4);
-            RecreateSegments(8);
+            this.DoubleBuffered = true;
+            
+            SetSegmentTemplate();
         }
 
         #region 7-Segment
 
-        /// <summary>
-        /// Array of segment controls that are currently children of this control.
-        /// </summary>
-        private SevenSegment[] segments = null;
+        protected decimal m_DigitSpacing = 4.0M;
+        protected decimal m_DigitShear = 7.0M;
+        protected decimal m_SegmentWidth = 2.8M;
+        protected decimal m_SegmentSpacing = 1M;
 
-        /// <summary>
-        /// Change the number of elements in our LED array. This destroys
-        /// the previous elements, and creates new ones in their place, applying
-        /// all the current options to the new ones.
-        /// </summary>
-        /// <param name="count">Number of elements to create.</param>
-        private void RecreateSegments(int count)
+        public decimal DigitSpacing { get { return m_DigitSpacing; } set { m_DigitSpacing = value; SetSegmentTemplate(); RedrawControl(true); } }
+        public decimal DigitShear { get { return m_DigitShear; } set { m_DigitShear = value; SetSegmentTemplate(); RedrawControl(true); } }
+        public decimal SegmentWidth { get { return m_SegmentWidth; } set { m_SegmentWidth = value; SetSegmentTemplate(); RedrawControl(true); } }
+        public decimal SegmentPadding { get { return m_SegmentSpacing; } set { m_SegmentSpacing = value; SetSegmentTemplate(); RedrawControl(true); } }
+        public new Color ForeColor { get { return base.ForeColor; } set { base.ForeColor = value; m_SegmentBrush = new SolidBrush(value); RedrawControl(true); } }
+        public new Color BackColor { get { return base.BackColor; } set { base.BackColor = value; m_BackgroundBrush = new SolidBrush(value); RedrawControl(true); } }
+
+        protected PointF[][] m_SegmentTemplate;
+        protected RectangleF m_DecimalTemplate;
+
+        protected byte[] m_CodeBFont = { 0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x7B, 0x01, 0x4F, 0x37, 0x0E, 0x67, 0x00 };
+
+        protected Brush m_SegmentBrush = null;
+        protected Brush m_BackgroundBrush = null;
+
+        private void RedrawControl(bool p_ForceEverything)
         {
-            if (segments != null)
-                for (int i = 0; i < segments.Length; i++) { segments[i].Parent = null; segments[i].Dispose(); }
-
-            if (count <= 0) return;
-            segments = new SevenSegment[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                segments[i] = new SevenSegment();
-                segments[i].Parent = this;
-                segments[i].Top = 0;
-                segments[i].Height = this.Height;
-                segments[i].Anchor = AnchorStyles.Top | AnchorStyles.Bottom;
-                segments[i].Visible = true;
-            }
-
-            ResizeSegments();
-            UpdateSegments();
-            this.Value = theValue;
+            this.Invalidate();
         }
 
-        /// <summary>
-        /// Align the elements of the array to fit neatly within the
-        /// width of the parent control.
-        /// </summary>
-        private void ResizeSegments()
+        private byte GetDisplayPatternForDigit(int p_DigitNumber)
         {
-            int segWidth = this.Width / segments.Length;
-            for (int i = 0; i < segments.Length; i++)
+            //
+            // Bit  Segment
+            //  0     G
+            //  1     F
+            //  2     E
+            //  3     D
+            //  4     C
+            //  5     B
+            //  6     A
+            //  7     DP
+            //
+
+            if (p_DigitNumber < 0 || p_DigitNumber > 7)
+                throw new InvalidOperationException("Bad digit number");
+
+
+            if (this.DesignMode)
+                return (byte)0xff; // All on in designer
+            else
             {
-                segments[i].Left = this.Width * (segments.Length - 1 - i) / segments.Length;
-                segments[i].Width = segWidth;
+                byte decodeSelectMask = (byte)(1 << p_DigitNumber);
+                byte displayData = m_Registers[p_DigitNumber + 1];
+
+                if (m_Registers[REG_SHUTDOWN] == 0)
+                    return 0; // In shutdown mode
+
+                if (p_DigitNumber + 1 > m_Registers[REG_SCAN_LIMIT])
+                    return 0; // Obey scan limit
+
+                if (m_Registers[REG_DISPLAY_TEST] == 1)
+                    return 0xff; // In display test
+
+                if ((m_Registers[REG_DECODE_MODE] & decodeSelectMask) != 0)
+                    return (byte)(m_CodeBFont[displayData & 0x0F] | (displayData & 0x80));
+                else
+                    return displayData;
             }
         }
 
-        /// <summary>
-        /// Update the properties of each element with the properties
-        /// we have stored.
-        /// </summary>
-        private void UpdateSegments()
+        private void SetSegmentTemplate()
         {
-            for (int i = 0; i < segments.Length; i++)
-            {
-                segments[i].ColorBackground = colorBackground;
-                segments[i].ColorDark = colorDark;
-                segments[i].ColorLight = colorLight;
-                segments[i].ElementWidth = elementWidth;
-                segments[i].ItalicFactor = italicFactor;
-                segments[i].DecimalShow = showDot;
-                segments[i].Padding = elementPadding;
-            }
-        }
+            m_SegmentTemplate = new PointF[7][];
 
-        private void SevenSegmentArray_Resize(object sender, EventArgs e) { ResizeSegments(); }
+            for (int i = 0; i < 7; i++)
+                m_SegmentTemplate[i] = new PointF[6];
 
-        protected override void OnPaintBackground(PaintEventArgs e) { e.Graphics.Clear(colorBackground); }
+            // Follow natural order of register layout, G->A, then DP
 
-        private int elementWidth = 8;
-        private float italicFactor = 0.0F;
-        private Color colorBackground = Color.DarkGray;
-        private Color colorDark = Color.DimGray;
-        private Color colorLight = Color.Red;
-        private bool showDot = true;
-        private Padding elementPadding;
+            // These bounds describe the outer edge of the segments
+            // Midlines will be towards center by 1*SegmentWidth
+            int top = this.Padding.Top;
+            int bottom = this.Height - this.Padding.Vertical - (this.BorderStyle == System.Windows.Forms.BorderStyle.FixedSingle ? 2 : 0);
+            int middle = (top + bottom) / 2;
 
-        /// <summary>
-        /// Background color of the LED array.
-        /// </summary>
-        public Color ColorBackground { get { return colorBackground; } set { colorBackground = value; UpdateSegments(); } }
-        /// <summary>
-        /// Color of inactive LED segments.
-        /// </summary>
-        public Color ColorDark { get { return colorDark; } set { colorDark = value; UpdateSegments(); } }
-        /// <summary>
-        /// Color of active LED segments.
-        /// </summary>
-        public Color ColorLight { get { return colorLight; } set { colorLight = value; UpdateSegments(); } }
+            float fSegmentWidth = (float)m_SegmentWidth;
+            float fSegmentSpacing = (float)m_SegmentSpacing;
+            float width = (float)(this.Width - this.Padding.Horizontal - (m_DigitSpacing * 7)) / 8;
 
-        /// <summary>
-        /// Width of LED segments.
-        /// </summary>
-        public int ElementWidth { get { return elementWidth; } set { elementWidth = value; UpdateSegments(); } }
-        /// <summary>
-        /// Shear coefficient for italicizing the displays. Try a value like -0.1.
-        /// </summary>
-        public float ItalicFactor { get { return italicFactor; } set { italicFactor = value; UpdateSegments(); } }
-        /// <summary>
-        /// Specifies if the decimal point LED is displayed.
-        /// </summary>
-        public bool DecimalShow { get { return showDot; } set { showDot = value; UpdateSegments(); } }
+            float halfSegmentWidth = fSegmentWidth / 2;
 
-        /// <summary>
-        /// Number of seven-segment elements in this array.
-        /// </summary>
-        public int ArrayCount { get { return segments.Length; } set { if ((value > 0) && (value <= 100)) RecreateSegments(value); } }
-        /// <summary>
-        /// Padding that applies to each seven-segment element in the array.
-        /// Tweak these numbers to get the perfect appearance for the array of your size.
-        /// </summary>
-        public Padding ElementPadding { get { return elementPadding; } set { elementPadding = value; UpdateSegments(); } }
+            // All segments are drawn clockwise
+            // G
+            m_SegmentTemplate[0][0] = new PointF(halfSegmentWidth + fSegmentSpacing, middle);
+            m_SegmentTemplate[0][1] = new PointF(fSegmentWidth + fSegmentSpacing, middle - halfSegmentWidth);
+            m_SegmentTemplate[0][2] = new PointF(width - fSegmentWidth - fSegmentSpacing, middle - halfSegmentWidth);
+            m_SegmentTemplate[0][3] = new PointF(width - halfSegmentWidth - fSegmentSpacing, middle);
+            m_SegmentTemplate[0][4] = new PointF(width - fSegmentWidth - fSegmentSpacing, middle + halfSegmentWidth);
+            m_SegmentTemplate[0][5] = new PointF(fSegmentWidth + fSegmentSpacing, middle + halfSegmentWidth);
 
+            // F
+            m_SegmentTemplate[1][0] = new PointF(halfSegmentWidth, top + halfSegmentWidth + fSegmentSpacing);
+            m_SegmentTemplate[1][1] = new PointF(fSegmentWidth, top + fSegmentWidth + fSegmentSpacing);
+            m_SegmentTemplate[1][2] = new PointF(fSegmentWidth, middle - halfSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[1][3] = new PointF(halfSegmentWidth, middle - fSegmentSpacing);
+            m_SegmentTemplate[1][4] = new PointF(0, middle - halfSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[1][5] = new PointF(0, top + fSegmentWidth + fSegmentSpacing);
 
-        private string theValue = null;
-        /// <summary>
-        /// The value to be displayed on the LED array. This can contain numbers,
-        /// certain letters, and decimal points.
-        /// </summary>
-        public string Value
-        {
-            get { return theValue; }
-            set
-            {
-                theValue = value;
-                //for (int i = 0; i < segments.Length; i++) { segments[i].CustomPattern = 0; segments[i].DecimalOn = false; }
-                if (theValue != null)
+            // E
+            m_SegmentTemplate[2][0] = new PointF(halfSegmentWidth, middle + fSegmentSpacing);
+            m_SegmentTemplate[2][1] = new PointF(fSegmentWidth, middle + halfSegmentWidth + fSegmentSpacing);
+            m_SegmentTemplate[2][2] = new PointF(fSegmentWidth, bottom - fSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[2][3] = new PointF(halfSegmentWidth, bottom - halfSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[2][4] = new PointF(0, bottom - fSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[2][5] = new PointF(0, middle + halfSegmentWidth + fSegmentSpacing);
+
+            // D
+            m_SegmentTemplate[3][0] = new PointF(halfSegmentWidth + fSegmentSpacing, bottom - halfSegmentWidth);
+            m_SegmentTemplate[3][1] = new PointF(fSegmentWidth + fSegmentSpacing, bottom - fSegmentWidth);
+            m_SegmentTemplate[3][2] = new PointF(width - fSegmentWidth - fSegmentSpacing, bottom - fSegmentWidth);
+            m_SegmentTemplate[3][3] = new PointF(width - halfSegmentWidth - fSegmentSpacing, bottom - halfSegmentWidth);
+            m_SegmentTemplate[3][4] = new PointF(width - fSegmentWidth - fSegmentSpacing, bottom);
+            m_SegmentTemplate[3][5] = new PointF(fSegmentWidth + fSegmentSpacing, bottom);
+
+            // C
+            m_SegmentTemplate[4][0] = new PointF(width - halfSegmentWidth, middle + fSegmentSpacing);
+            m_SegmentTemplate[4][1] = new PointF(width, middle + halfSegmentWidth + fSegmentSpacing);
+            m_SegmentTemplate[4][2] = new PointF(width, bottom - fSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[4][3] = new PointF(width - halfSegmentWidth, bottom - halfSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[4][4] = new PointF(width - fSegmentWidth, bottom - fSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[4][5] = new PointF(width - fSegmentWidth, middle + halfSegmentWidth + fSegmentSpacing);
+
+            // B
+            m_SegmentTemplate[5][0] = new PointF(width - halfSegmentWidth, top + halfSegmentWidth + fSegmentSpacing);
+            m_SegmentTemplate[5][1] = new PointF(width, top + fSegmentWidth + fSegmentSpacing);
+            m_SegmentTemplate[5][2] = new PointF(width, middle - halfSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[5][3] = new PointF(width - halfSegmentWidth, middle - fSegmentSpacing);
+            m_SegmentTemplate[5][4] = new PointF(width - fSegmentWidth, middle - halfSegmentWidth - fSegmentSpacing);
+            m_SegmentTemplate[5][5] = new PointF(width - fSegmentWidth, top + fSegmentWidth + fSegmentSpacing);
+
+            // A
+            m_SegmentTemplate[6][0] = new PointF(halfSegmentWidth + fSegmentSpacing, top + halfSegmentWidth);
+            m_SegmentTemplate[6][1] = new PointF(fSegmentWidth + fSegmentSpacing, top);
+            m_SegmentTemplate[6][2] = new PointF(width - fSegmentWidth - fSegmentSpacing, top);
+            m_SegmentTemplate[6][3] = new PointF(width - halfSegmentWidth - fSegmentSpacing, top + halfSegmentWidth);
+            m_SegmentTemplate[6][4] = new PointF(width - fSegmentWidth - fSegmentSpacing, top + fSegmentWidth);
+            m_SegmentTemplate[6][5] = new PointF(fSegmentWidth + fSegmentSpacing, top + fSegmentWidth);
+
+            // Now apply shear to the template
+            float shear_rads = (float)m_DigitShear * (3.1415927f / 180f);
+            float slope = (float)Math.Sin(shear_rads);
+
+            for (int seg=0;seg<7;seg++)
+                for (int p=0;p<=5;p++)
                 {
-                    int segmentIndex = 0;
-                    for (int i = theValue.Length - 1; i >= 0; i--)
-                    {
-                        if (segmentIndex >= segments.Length) break;
-                        if (theValue[i] == '.') segments[segmentIndex].DecimalOn = true;
-                        else segments[segmentIndex++].Value = theValue[i].ToString();
-                    }
+                    // |    *    *.X = sin(s) + *.Y
+                    // |   /
+                    // |  /
+                    // |s/       s = shear
+                    // |/
+
+                    m_SegmentTemplate[seg][p].X += slope * (bottom - m_SegmentTemplate[seg][p].Y);
+                }
+
+            // Decimal point
+
+            m_DecimalTemplate = new System.Drawing.RectangleF(width + (float)m_DigitSpacing / 2f - halfSegmentWidth, bottom - fSegmentWidth, fSegmentWidth, fSegmentWidth);
+        }
+
+        /// <summary>
+        /// Draws a single digit and decimal point
+        /// </summary>
+        /// <param name="p_DigitNumber">Digit number (for drawing data from internal registers)</param>
+        /// <param name="p_Xabs">Absolute X offset of left-hand side of digit</param>
+        private void DrawDigit(int p_DigitNumber, Graphics g, byte p_DrawBits)
+        {
+            Matrix m = new System.Drawing.Drawing2D.Matrix();
+            byte pattern = GetDisplayPatternForDigit(p_DigitNumber);
+            float p_Xabs = ((float)p_DigitNumber * ((this.Width - (float)m_SegmentWidth) / 8f));
+
+            m.Translate(p_Xabs, 0);
+
+            g.Transform = m;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            for (int bit=0;bit<7;bit++)
+            {
+                if ((int)(p_DrawBits & (1 << bit)) != 0)
+                {
+                    // Segment should be lit
+
+                    g.FillPolygon((pattern & (1 << bit)) != 0 ? m_SegmentBrush : m_BackgroundBrush, m_SegmentTemplate[bit]);
                 }
             }
+
+            if ((p_DrawBits & 0x80) != 0)
+            {
+                // Draw the decimal point
+
+                g.FillEllipse(((pattern & 0x80) != 0) ? m_SegmentBrush : m_BackgroundBrush, m_DecimalTemplate);
+            }
+        }
+
+        protected override void OnPaintBackground(PaintEventArgs e) { e.Graphics.Clear(this.BackColor); }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            byte redrawEverythingMask = 0xff;
+            
+            base.OnPaint(e);
+
+            for (int i = 0; i <= 7;i++)
+                DrawDigit(i, e.Graphics, redrawEverythingMask);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+
+            SetSegmentTemplate();
+            RedrawControl(true);
         }
 
         #endregion
@@ -207,10 +280,23 @@ namespace LEDJebVirtualPanel
         private byte m_HighByte = 0;
 
         private byte[] m_Registers = new byte[16];
-        private char[] m_BCODE = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'E', 'H', 'L', 'P', ' ' };
 
         private System.Text.Encoding m_Encoding = System.Text.Encoding.GetEncoding("ISO-8859-1");
 
+        public const int REG_NOOP = 0x00;
+        public const int REG_DIGIT0 = 0x01;
+        public const int REG_DIGIT1 = 0x02;
+        public const int REG_DIGIT2 = 0x03;
+        public const int REG_DIGIT3 = 0x04;
+        public const int REG_DIGIT4 = 0x05;
+        public const int REG_DIGIT5 = 0x06;
+        public const int REG_DIGIT6 = 0x07;
+        public const int REG_DIGIT7 = 0x08;
+        public const int REG_DECODE_MODE = 0x09;
+        public const int REG_INTENSITY = 0x0A;
+        public const int REG_SCAN_LIMIT = 0x0B;
+        public const int REG_SHUTDOWN = 0x0C;
+        public const int REG_DISPLAY_TEST = 0x0F;
 
         public MAX7219Display NextInChain
         {
@@ -244,75 +330,33 @@ namespace LEDJebVirtualPanel
         public void LoadData()
         {
             int reg = (int)(m_HighByte & 0x0f);
+            byte lastData = m_Registers[reg];
 
             m_Registers[reg] = m_LowByte;
 
-            UpdateDisplay();
+            if (reg >= REG_DIGIT1 && reg <= REG_DIGIT7)
+            {
+                // Compute only what has changed to preserve GDI calls
+                byte diff = (byte)(lastData ^ m_LowByte);
+
+                if (diff != 0)
+                {
+                    Graphics g = this.CreateGraphics();
+
+                    DrawDigit(reg - REG_DIGIT1, g, diff);
+
+                    g.Dispose();
+                }
+            }
+            else
+                this.RedrawControl(true); // Global register change
 
             if (m_NextInChain != null)
                 m_NextInChain.LoadData();
         }
 
-        private void UpdateDisplay()
-        {
-            int ScanLimit = (int)m_Registers[0x0B];
-            byte[] ReadoutBytes = new byte[ScanLimit * 2];
-            int BytesDisplayed = 0;
-
-            if (m_Registers[0x0C] == 0)
-            {
-                // In shutdown mode, blank display
-                for (int i = 1; i <= ScanLimit; i++)
-                    ReadoutBytes[i - 1] = (byte)' ';
-
-                BytesDisplayed = 8;
-            }
-            else if (m_Registers[0x0F] == 1)
-            {
-                // Not in shutdown, and in test mode
-                for (int i = 1; i <= ScanLimit; i++)
-                    ReadoutBytes[i - 1] = (byte)'8';
-
-                BytesDisplayed = 8;
-            }
-            else
-            {
-                // Not in shutdown, not in test mode
-
-                for (int i = 1; i <= ScanLimit; i++)
-                {
-                    ReadoutBytes[BytesDisplayed++] = (byte)m_BCODE[m_Registers[i] & 0x0f];
-
-                    if ((m_Registers[i] & 0x80) != 0)
-                        ReadoutBytes[BytesDisplayed++] = (byte)'.';
-                }
-
-            }
-
-            this.Value = m_Encoding.GetString(ReadoutBytes, 0, BytesDisplayed);
-        }
 
 
         #endregion
-
-        public new event EventHandler DoubleClick
-        {
-            add
-            {
-                base.DoubleClick += value;
-                foreach (Control control in Controls)
-                {
-                    control.DoubleClick += value;
-                }
-            }
-            remove
-            {
-                base.DoubleClick -= value;
-                foreach (Control control in Controls)
-                {
-                    control.DoubleClick -= value;
-                }
-            }
-        }
     }
 }

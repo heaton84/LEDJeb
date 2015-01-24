@@ -106,12 +106,27 @@ namespace LEDJeb
                 {
                     // Remember we've already checked that the targetObject is a Vessel above
                     Vessel targetVessel = (Vessel)FlightGlobals.ActiveVessel.targetObject;
+                    Orbit activeOrbit = FlightGlobals.ActiveVessel.orbit;
+                    Orbit targetOrbit = targetVessel.orbit;
 
                     Vector3d activeVesselPos = FlightGlobals.ActiveVessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()) + FlightGlobals.ActiveVessel.orbit.referenceBody.position;
                     Vector3d targetVesselPos = targetVessel.orbit.getRelativePositionAtUT(Planetarium.GetUniversalTime()) + targetVessel.orbit.referenceBody.position;
 
                     flightData.targetDistance = (activeVesselPos - targetVesselPos).magnitude;
-                    flightData.targetAscendingNode = FlightGlobals.ActiveVessel.orbit.inclination + targetVessel.orbit.inclination;
+
+                    if (MuMech.OrbitExtensions.AscendingNodeExists(FlightGlobals.ActiveVessel.orbit, targetVessel.orbit))
+                    {
+
+                        flightData.targetAscendingNode = targetOrbit.inclination - activeOrbit.inclination;
+
+
+                        //flightData.targetAscendingNode = MuMech.OrbitExtensions.AscendingNodeEquatorialTrueAnomaly(FlightGlobals.ActiveVessel.orbit, targetVessel.orbit);
+                    }
+
+
+                    //double now = Planetarium.GetUniversalTime();
+                    //flightData.targetETA = MuMech.OrbitExtensions.NextClosestApproachTime(FlightGlobals.ActiveVessel.orbit, targetVessel.orbit, now) - now;
+                    flightData.targetETA = activeOrbit.closestTgtApprUT - Planetarium.GetUniversalTime();
 
                     Vector3d activeVesselV = FlightGlobals.ActiveVessel.orbit.vel;
                     Vector3d targetVesselV = targetVessel.orbit.vel;

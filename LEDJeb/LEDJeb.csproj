@@ -54,8 +54,13 @@
     <Compile Include="LEDJebBehavior.cs" />
     <Compile Include="LEDJebFlightData.cs" />
     <Compile Include="LEDPanel.cs" />
+    <Compile Include="MuMech\MuUtils.cs" />
+    <Compile Include="MuMech\OrbitExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketDataStream.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LICENSE.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
